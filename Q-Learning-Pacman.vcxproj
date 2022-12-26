@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Q-Learning\source\Game\Controller.h" />
     <ClInclude Include="Pacman-Clone-master\Src\Animation\Animation.h" />
     <ClInclude Include="Pacman-Clone-master\Src\Animation\Animator.h" />
     <ClInclude Include="Pacman-Clone-master\Src\Audio\AudioAssets.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Pacman-Clone-master\Src\UI\Button.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Q-Learning\source\Game\Controller.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\Animation\Animation.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\Animation\Animator.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\Audio\AudioManager.cpp" />

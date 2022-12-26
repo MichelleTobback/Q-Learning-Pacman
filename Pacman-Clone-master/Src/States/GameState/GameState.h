@@ -4,6 +4,7 @@
 #include "../../Tile.h"
 #include "../../Entity/Snack/Snack.h"
 #include "../../Audio/AudioManager.h"
+#include "../Q-Learning/source/Game/Controller.h"
 
 class Enemy;
 class Pacman;
@@ -50,6 +51,9 @@ public:
 	void UnfreezeGame();
 	void StopPowerSnackSound();
 	Enemy* FindEnemyByPosition(sf::Vector2i pos);
+
+	inline Controller& GetController() { return m_Controller; }
+
 private:
 	int lifes = 3;
 
@@ -60,6 +64,8 @@ private:
 	sf::Font font;
 	sf::Text scoreText;
 	sf::Text lifesText;
+
+	Controller m_Controller{};
 
 	void Restart();
 	void LoadTextures();

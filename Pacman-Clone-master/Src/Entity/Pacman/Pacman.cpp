@@ -22,6 +22,12 @@ Pacman::Pacman(int tileX, int tileY, GameState* gameState)
 		std::cout << "texture not loaded correctly" << std::endl;
 
 	body.move(sf::Vector2f(30 * tileX, 25.5f * tileY));
+
+	// bind input
+	gameState->GetController().m_MoveDown = [=]() {nextDir = Down; };
+	gameState->GetController().m_MoveUp = [=]() {nextDir = Up; };
+	gameState->GetController().m_MoveLeft = [=]() {nextDir = Left; };
+	gameState->GetController().m_MoveRight = [=]() {nextDir = Right; };
 }
 
 Pacman::~Pacman()
@@ -41,14 +47,14 @@ void Pacman::Update(const float& deltaTime)
 {
 	if (!gameState->isPacmanDead)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-			nextDir = Up;
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-			nextDir = Down;
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-			nextDir = Left;
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-			nextDir = Right;
+		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+		//	nextDir = Up;
+		//else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+		//	nextDir = Down;
+		//else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+		//	nextDir = Left;
+		//else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+		//	nextDir = Right;
 
 		//handle eating snack sound effect
 		if (isEatingSnacks && !audio.IsPlayingAudio(Sounds::Munch))

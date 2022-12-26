@@ -79,6 +79,7 @@ void GameState::Restart()
 void GameState::Update(const float& deltaTime)
 {
     //Logic
+    m_Controller.Update();
 
     //if initial music has played, start the game
     if (!audioManager.IsPlayingAudio(Sounds::GameStart) && !gameHasStarted)
