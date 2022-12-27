@@ -17,6 +17,8 @@
 
 #include "../MainMenuState/MainMenuState.h"
 
+#include "../Q-Learning/source/Game/PacmanQLearning.h"
+
 //test
 #include <sstream>
 
@@ -30,6 +32,9 @@ GameState::GameState(sf::RenderWindow* window, std::stack<State*>* states, GameM
 
     audioManager.PlaySound(Sounds::GameStart, false, VOLUME);
     LoadTextures();
+
+    m_QLearn = new PacmanQLearning();
+    m_QLearn->Init(&m_Controller);
 }
 
 GameState::~GameState() 
@@ -39,6 +44,9 @@ GameState::~GameState()
         delete x;
 
     DeleteSnacks();
+
+    delete m_QLearn;
+    m_QLearn = nullptr;
 }
 
 void GameState::OnPacmanDeath() 
@@ -91,8 +99,11 @@ void GameState::Update(const float& deltaTime)
     }
 
     //updating entities that are not freezed
-    if(isFreezed == false || entityThatWontFreeze == Entities::Pacman)
+    if (isFreezed == false || entityThatWontFreeze == Entities::Pacman)
+    {
+        m_QLearn->Update(*tileArray, NumberOfTilesX, NumberOfTilesY, pacman);
         pacman->Update(deltaTime);
+    }
 
     for (auto const& x : enemys)
     {
@@ -111,12 +122,15 @@ void GameState::Update(const float& deltaTime)
     //if pacman is dead, wait death music to stop before restarting the game
     if (isPacmanDead && !audioManager.IsPlayingAudio(Sounds::Death))
     {
-        if (lifes == 0)
-            states->push(new MainMenuState(window, states, gameManager));
-        else
-        {
-            Restart();
-        }
+        //if (lifes == 0)
+        //    states->push(new MainMenuState(window, states, gameManager));
+        //else
+        //{
+        //    Restart();
+        //}
+        //play endless to train the agent
+        std::cout << "lost, score: " << score << "\n";
+        Restart();
     }
 
 

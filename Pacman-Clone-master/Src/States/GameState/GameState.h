@@ -8,6 +8,7 @@
 
 class Enemy;
 class Pacman;
+struct PacmanQLearning;
 
 #define NumberOfTilesX 28
 #define NumberOfTilesY 31
@@ -66,6 +67,7 @@ private:
 	sf::Text lifesText;
 
 	Controller m_Controller{};
+	PacmanQLearning* m_QLearn{nullptr};
 
 	void Restart();
 	void LoadTextures();

@@ -87,6 +87,18 @@
     <ClInclude Include="Q-Learning\source\Game\Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Q-Learning\source\QLEnvironment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Q-Learning\source\QLAgent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Q-Learning\source\QLearning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Q-Learning\source\Game\PacmanQLearning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Pacman-Clone-master\Src\Animation\Animation.cpp">
@@ -150,6 +162,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Q-Learning\source\Game\Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Q-Learning\source\QLEnvironment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Q-Learning\source\QLAgent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Q-Learning\source\Game\PacmanQLearning.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Q-Learning\source\Game\PacmanQLearning.h" />
     <ClInclude Include="Q-Learning\source\Game\Controller.h" />
     <ClInclude Include="Pacman-Clone-master\Src\Animation\Animation.h" />
     <ClInclude Include="Pacman-Clone-master\Src\Animation\Animator.h" />
@@ -158,8 +159,12 @@
     <ClInclude Include="Pacman-Clone-master\Src\States\State.h" />
     <ClInclude Include="Pacman-Clone-master\Src\Tile.h" />
     <ClInclude Include="Pacman-Clone-master\Src\UI\Button.h" />
+    <ClInclude Include="Q-Learning\source\QLearning.h" />
+    <ClInclude Include="Q-Learning\source\QLEnvironment.h" />
+    <ClInclude Include="Q-Learning\source\QLAgent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Q-Learning\source\Game\PacmanQLearning.cpp" />
     <ClCompile Include="Q-Learning\source\Game\Controller.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\Animation\Animation.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\Animation\Animator.cpp" />
@@ -181,6 +186,8 @@
     <ClCompile Include="Pacman-Clone-master\Src\States\MainMenuState\MainMenuState.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\States\State.cpp" />
     <ClCompile Include="Pacman-Clone-master\Src\UI\Button.cpp" />
+    <ClCompile Include="Q-Learning\source\QLEnvironment.cpp" />
+    <ClCompile Include="Q-Learning\source\QLAgent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
