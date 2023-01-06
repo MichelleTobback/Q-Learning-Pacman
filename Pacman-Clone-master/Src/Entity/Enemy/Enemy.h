@@ -50,7 +50,7 @@ private:
 	void Move(const float& deltaTime) override;
 protected:
 	Animator* animator;
-	Animation* animations[6]; //left, right, up, down, frightened, flickeringFrightened
+	std::shared_ptr<Animation> animations[6]; //left, right, up, down, frightened, flickeringFrightened
 	virtual void SetupAnimations();
 	virtual sf::Vector2i GetScatterTargetPosition();
 	virtual sf::Vector2i GetChaseTargetPosition();

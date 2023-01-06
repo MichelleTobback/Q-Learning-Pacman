@@ -134,3 +134,13 @@ bool AudioManager::IsPlayingAudio(Sounds soundType)
         break;
     }
 }
+
+void AudioManager::SetVolume(float volume)
+{
+    gameStartSound.setVolume(volume);
+    munchSound.setVolume(volume);
+    powerSnackSound.setVolume(volume);
+    deathSound.setVolume(volume);
+    sirenSound.setVolume(volume);
+    retreatingSound.setVolume(volume);
+}

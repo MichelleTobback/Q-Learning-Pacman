@@ -1,5 +1,6 @@
 #pragma once
 #include "../QLearning.h"
+#include "Src/States/GameState/GameState.h"
 
 struct sTile;
 class Enemy;
@@ -22,20 +23,26 @@ struct PacmanQLearning
 		None, HitByEnemy, PickedCoin, HitWall, Won, Lost
 	};
 
-	QL::QLearning ql{0.1f, 0.9f, 0.2f};
+	QL::QLearning ql{0.5f, 0.2f, 0.3f};
 	QL::Environment env{};
 	QL::Agent agent;
 
-	void Init(Controller* pController);
-	void Update(sTile* pTiles, int numTilesX, int numTilesY, Pacman* pPacman);
+	size_t numTrainedRounds{};
+	std::string currentPath;
+
+	bool trainingState{ true };
+
+	void Init(Controller* pController, const std::string& path);
+	void Update(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman);
 
 private:
 	void InitQTable();
 	void InitEnvironment();
 	void InitAgent(Controller* pController);
 
-	StateType ObserveEnvironment(sTile* pTiles, int numTilesX, int numTilesY, Pacman* pPacman);
-	ActionEventType ReflectAction(ActionType action, sTile* pTiles, int numTilesX, int numTilesY, Pacman* pPacman);
+	QL::State ObserveEnvironment(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman);
+	QL::State ObserveEnvironmentCombinedStates(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman);
+	ActionEventType ReflectAction(ActionType action, sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman);
 };
 
 

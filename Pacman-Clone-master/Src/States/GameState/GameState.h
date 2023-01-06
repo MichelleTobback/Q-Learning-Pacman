@@ -66,16 +66,23 @@ private:
 	sf::Text scoreText;
 	sf::Text lifesText;
 
-	Controller m_Controller{};
-	PacmanQLearning* m_QLearn{nullptr};
-
 	void Restart();
 	void LoadTextures();
 	void CreateMapCollidersAndSnacks();
-	void EmptyTileArray();
 	void CreatePacmanAndEnemys();
 	void CreateUI();
 	void UpdateUI();
 	void DeleteSnacks();
+	void EmptyTileArray();
+
+	//ql
+	void DrawTrainingState();
+	void UpdateTrainingState(const float& deltaTime);
+	void RestartTrainingState();
+
+	void ResetPacmanAndEnemies();
+
+	Controller m_Controller{};
+	PacmanQLearning* m_QLearn{ nullptr };
 };
 

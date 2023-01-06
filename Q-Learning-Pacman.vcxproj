@@ -125,6 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjDirectory);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,6 +163,7 @@
     <ClInclude Include="Q-Learning\source\QLearning.h" />
     <ClInclude Include="Q-Learning\source\QLEnvironment.h" />
     <ClInclude Include="Q-Learning\source\QLAgent.h" />
+    <ClInclude Include="Q-Learning\source\QLState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Q-Learning\source\Game\PacmanQLearning.cpp" />

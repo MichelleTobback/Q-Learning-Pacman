@@ -23,6 +23,7 @@ enum class Entities {
 class Entity
 {
 public:
+	Entity() = default;
 	Entity(GameState* gameState, Entities entityType);
 	virtual ~Entity() = default;
 	float speed = 140;
@@ -33,6 +34,7 @@ public:
 	sf::Texture texture;
 	virtual void Update(const float& deltaTime) = 0;
 	virtual void Draw(sf::RenderWindow& rw) = 0;
+
 protected:
 	GameState* gameState;
 	sf::Vector2f GetFinalTilePosition();

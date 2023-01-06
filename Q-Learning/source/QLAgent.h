@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <functional>
+#include "../Pacman-Clone-master/Src/Common.h"
 
 namespace QL
 {

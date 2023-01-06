@@ -21,13 +21,15 @@ Pacman::Pacman(int tileX, int tileY, GameState* gameState)
 	else
 		std::cout << "texture not loaded correctly" << std::endl;
 
-	body.move(sf::Vector2f(30 * tileX, 25.5f * tileY));
+	body.move(sf::Vector2f(30.f * tileX, 25.5f * tileY));
+
+	m_pController = &gameState->GetController();
 
 	// bind input
-	gameState->GetController().m_MoveDown = [=]() {nextDir = Down; };
-	gameState->GetController().m_MoveUp = [=]() {nextDir = Up; };
-	gameState->GetController().m_MoveLeft = [=]() {nextDir = Left; };
-	gameState->GetController().m_MoveRight = [=]() {nextDir = Right; };
+	m_pController->m_MoveDown = [this]() {nextDir = Down; };
+	m_pController->m_MoveUp = [this]() {nextDir = Up; };
+	m_pController->m_MoveLeft = [this]() {nextDir = Left; };
+	m_pController->m_MoveRight = [this]() {nextDir = Right; };
 }
 
 Pacman::~Pacman()
@@ -130,7 +132,7 @@ void Pacman::UpdatePlayerTilePosition()
 			ChangeAnimation(currentDir);
 		}
 
-		//nextDir = None;
+		//;
 	}
 
 	

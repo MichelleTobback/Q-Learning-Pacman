@@ -34,14 +34,17 @@ GameState::GameState(sf::RenderWindow* window, std::stack<State*>* states, GameM
     LoadTextures();
 
     m_QLearn = new PacmanQLearning();
-    m_QLearn->Init(&m_Controller);
+    m_QLearn->Init(&m_Controller, "Q-Learning/source/Saves/QTablePacman.txt");
 }
 
 GameState::~GameState() 
 {
     delete pacman;
-    for (auto const& x : enemys)
+    for (auto& x : enemys)
+    {
         delete x;
+        x = nullptr;
+    }
 
     DeleteSnacks();
 
@@ -61,19 +64,25 @@ void GameState::Restart()
 {
     audioManager.StopSound();
 
-    if(isPacmanDead)
+    if(isPacmanDead && lifes > 0)
         lifes--;
-    else
+    else if (lifes == 0)
     {
+        lifes = 3;
+        score = 0;
         DeleteSnacks();
         EmptyTileArray();
         CreateMapCollidersAndSnacks();
     }
 
-    for (auto const& x : enemys)
+    for (auto& x : enemys)
+    {
         delete x;
+        x = nullptr;
+    }
 
     delete pacman;
+    pacman = nullptr;
 
     isFreezed = true;
     entityThatWontFreeze = Entities::NotDefined;
@@ -82,10 +91,24 @@ void GameState::Restart()
 
     CreatePacmanAndEnemys();
     audioManager.PlaySound(Sounds::GameStart, false, VOLUME);
+
+    //qlearning
+    ++m_QLearn->numTrainedRounds;
+
+    if (!(m_QLearn->numTrainedRounds % 3))
+    {
+        m_QLearn->ql.GetQTable().SaveToFile(m_QLearn->currentPath, m_QLearn->numTrainedRounds);
+    }
 }
 
 void GameState::Update(const float& deltaTime)
 {
+    if (m_QLearn->trainingState)
+    {
+        UpdateTrainingState(deltaTime);
+        return;
+    }
+
     //Logic
     m_Controller.Update();
 
@@ -101,7 +124,7 @@ void GameState::Update(const float& deltaTime)
     //updating entities that are not freezed
     if (isFreezed == false || entityThatWontFreeze == Entities::Pacman)
     {
-        m_QLearn->Update(*tileArray, NumberOfTilesX, NumberOfTilesY, pacman);
+        m_QLearn->Update(tileArray, NumberOfTilesX, NumberOfTilesY, pacman);
         pacman->Update(deltaTime);
     }
 
@@ -281,8 +304,6 @@ void GameState::CreateMapCollidersAndSnacks()
             }
         }
     }
-
-
 }
 
 void GameState::EmptyTileArray()
@@ -295,6 +316,98 @@ void GameState::EmptyTileArray()
             tileArray[x][y].tileTypes.clear();
         }
     }
+}
+
+void GameState::DrawTrainingState()
+{
+    window->clear();
+    window->draw(mapSprite);
+
+    for (auto const& x : SnackList)
+        x->Draw(*window);
+
+    pacman->Draw(*window);
+
+    for (auto const& x : enemys)
+    {
+        if (x != NULL)
+            x->Draw(*window);
+    }
+
+    window->display();
+}
+
+void GameState::UpdateTrainingState(const float& deltaTime)
+{
+    constexpr const size_t numEpisodes{ 1000 };
+    for (int i{}; i < numEpisodes; i++)
+    {
+        if (m_QLearn->numTrainedRounds == numEpisodes)
+        {
+            m_QLearn->ql.GetQTable().SaveToFile(m_QLearn->currentPath, m_QLearn->numTrainedRounds);
+            //m_QLearn->trainingState = false;
+            return;
+        }
+
+        if (isPacmanDead)
+        {
+            std::cout << "lost, score: " << score << "\n";
+            std::cout << "episode: " << m_QLearn->numTrainedRounds << '\n';
+            RestartTrainingState();
+            m_QLearn->ql.GetQTable().SaveToFile(m_QLearn->currentPath, m_QLearn->numTrainedRounds);
+            return;
+        }
+        else
+        {
+            m_QLearn->Update(tileArray, NumberOfTilesX, NumberOfTilesY, pacman);
+            pacman->Update(deltaTime * numEpisodes);
+
+            for (auto const& x : enemys)
+            {
+                if (x != nullptr)
+                    x->Update(deltaTime * numEpisodes);
+            }
+
+            for (auto const& x : SnackList)
+            {
+                x->Update(deltaTime * numEpisodes);
+            }
+        }
+    }
+}
+
+void GameState::ResetPacmanAndEnemies()
+{
+    pacman->gridPos = { 13, 23 };
+    enemys[0]->gridPos = { 13, 12 };
+    enemys[1]->gridPos = { 11, 14 };
+    enemys[2]->gridPos = { 13, 14 };
+    enemys[3]->gridPos = { 15, 14 };
+
+    pacman->body.setPosition(sf::Vector2f(30.f * pacman->gridPos.x, 25.5f * pacman->gridPos.y));
+    tileArray[pacman->gridPos.x][pacman->gridPos.y].isEmpty = false;
+    tileArray[pacman->gridPos.x][pacman->gridPos.y].tileTypes.push_back(sTile::Player);
+
+    for (auto& enemy : enemys)
+    {
+        enemy->body.setPosition(sf::Vector2f(30.f * enemy->gridPos.x, 25.5f * enemy->gridPos.y));
+        tileArray[enemy->gridPos.x][enemy->gridPos.y].isEmpty = false;
+        tileArray[enemy->gridPos.x][enemy->gridPos.y].tileTypes.push_back(sTile::Ghost);
+    }
+}
+
+void GameState::RestartTrainingState()
+{
+    //states->push(new GameState(window, states, gameManager));
+    score = 0;
+    DeleteSnacks();
+    EmptyTileArray();
+    CreateMapCollidersAndSnacks();
+
+    ResetPacmanAndEnemies();
+
+    isPacmanDead = false;
+    ++m_QLearn->numTrainedRounds;
 }
 
 void GameState::CreatePacmanAndEnemys() 

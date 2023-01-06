@@ -9,8 +9,8 @@ struct sTile {
 
     static int GetDistanceBetweenTiles(sf::Vector2i a, sf::Vector2i b)
     {
-        return std::sqrt(std::pow(a.x - b.x, 2) +
-            std::pow(a.y - b.y, 2) * 1.0);
+        return int(std::sqrt(std::pow(a.x - b.x, 2) +
+            std::pow(a.y - b.y, 2) * 1.0));
     }
 
     bool DoesTileHaveType(TileType type) {

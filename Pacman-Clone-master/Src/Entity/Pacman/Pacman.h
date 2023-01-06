@@ -6,6 +6,8 @@
 #include "../../Animation/Animator.h"
 #include "../../Audio/AudioManager.h"
 
+class Controller;
+
 class Pacman : public Entity
 {
 public:
@@ -21,6 +23,8 @@ private:
 	Directions nextDir = None;
 	bool hasCompletedMovement = false;
 	bool isEatingSnacks = false;
+
+	Controller* m_pController{ nullptr };
 
 	void Move(const float& deltaTime) override;
 	void EatSnack(sf::Vector2i snackGridPosition);

@@ -44,8 +44,8 @@ void Clyde::SetupAnimations()
 	std::vector<sf::Texture> upAnimTextures{ u1,u2 };
 	std::vector<sf::Texture> downAnimTextures{ d1,d2 };
 
-	animations[0] = new Animation(leftAnimTextures, true, 0.1f);
-	animations[1] = new Animation(rightAnimTextures, true, 0.1f);
-	animations[2] = new Animation(upAnimTextures, true, 0.1f);
-	animations[3] = new Animation(downAnimTextures, true, 0.1f);
+	animations[0] = std::make_shared<Animation>(leftAnimTextures, true, 0.1f);
+	animations[1] = std::make_shared<Animation>(rightAnimTextures, true, 0.1f);
+	animations[2] = std::make_shared<Animation>(upAnimTextures, true, 0.1f);
+	animations[3] = std::make_shared<Animation>(downAnimTextures, true, 0.1f);
 }

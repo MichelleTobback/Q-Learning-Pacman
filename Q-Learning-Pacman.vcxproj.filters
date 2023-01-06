@@ -99,6 +99,9 @@
     <ClInclude Include="Q-Learning\source\Game\PacmanQLearning.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Q-Learning\source\QLState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Pacman-Clone-master\Src\Animation\Animation.cpp">

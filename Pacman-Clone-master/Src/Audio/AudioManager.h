@@ -12,6 +12,7 @@ public:
 	void PlaySound(Sounds soundType, bool loop, int volume);
 	void StopSound(Sounds soundType = Sounds::None);
 	bool IsPlayingAudio(Sounds soundType);
+	void SetVolume(float volume);
 private:
 
 	sf::SoundBuffer gameStartBuffer;

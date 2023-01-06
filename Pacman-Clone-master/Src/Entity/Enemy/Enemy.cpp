@@ -24,21 +24,20 @@ Enemy::Enemy(sf::Vector2i gridPos, sf::Vector2i texturePos, GameState* gameState
 	else
 		std::cout << "texture not loaded correctly" << std::endl;
 
-	body.move(sf::Vector2f(30 * gridPos.x, 25.5f * gridPos.y));
+	body.move(sf::Vector2f(30.f * gridPos.x, 25.5f * gridPos.y));
 }
 
 
 Enemy::~Enemy()
 {
 	delete animator;
-	for (auto const& x : animations)
-		delete x;
+	animator = nullptr;
 }
 
 void Enemy::Scare()
 {
 	state = EnemyState::Frightened;
-	animator->SetAnimationClip(animations[4]);
+	animator->SetAnimationClip(animations[4].get());
 	scaredTimer = 0;
 	hasStartedflickeringAnim = false;
 }
@@ -61,7 +60,7 @@ void Enemy::Update(const float& deltaTime)
 		scaredTimer += deltaTime;
 
 		if (scaredTimer >= 6 && !hasStartedflickeringAnim){
-			animator->SetAnimationClip(animations[5]);
+			animator->SetAnimationClip(animations[5].get());
 			scaredTimer = 0;
 			hasStartedflickeringAnim = true;
 		}
@@ -298,16 +297,16 @@ void Enemy::ChangeAnimation()
 			switch (currentDir)
 			{
 			case Left:
-				animator->SetAnimationClip(animations[0]);
+				animator->SetAnimationClip(animations[0].get());
 				break;
 			case Right:
-				animator->SetAnimationClip(animations[1]);
+				animator->SetAnimationClip(animations[1].get());
 				break;
 			case Up:
-				animator->SetAnimationClip(animations[2]);
+				animator->SetAnimationClip(animations[2].get());
 				break;
 			case Down:
-				animator->SetAnimationClip(animations[3]);
+				animator->SetAnimationClip(animations[3].get());
 				break;
 			}
 		}
@@ -422,6 +421,6 @@ void Enemy::SetupAnimations()
 	std::vector<sf::Texture> flickeringFrightenedAnimTextures{ f1, f2, ff1, ff2 };
 
 
-	animations[4] = new Animation(frightenedAnimTextures);
-	animations[5] = new Animation(flickeringFrightenedAnimTextures);
+	animations[4] = std::make_shared<Animation>(frightenedAnimTextures);
+	animations[5] = std::make_shared<Animation>(flickeringFrightenedAnimTextures);
 }

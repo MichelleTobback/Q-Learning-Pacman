@@ -4,18 +4,28 @@
 
 #include <unordered_map>
 #include <random>
+#include <fstream>
+#include <iostream>
 
 namespace QL
 {
 	typedef uint32_t State;
 	typedef uint32_t Action;
 
+	static State CombineStates(const std::vector<State>& values)
+	{
+		auto hash{ std::hash<State>{}(values[0]) };
+		for (size_t i{ 1 }; i < values.size(); i++)
+			hash ^= std::hash<State>{}(values[i]);
+		return static_cast<State>(hash);
+	}
+
 	struct StateAction_Hash
 	{
 		std::size_t operator () (const std::pair<State, Action>& stateAction) const
 		{
 			auto hash1 = std::hash<State>{}(stateAction.first);
-			auto hash2 = std::hash<State>{}(stateAction.second);
+			auto hash2 = std::hash<Action>{}(stateAction.second);
 
 			return hash1 ^ hash2;
 		}
@@ -41,6 +51,10 @@ namespace QL
 		{
 			m_QTable[std::make_pair(state, action)] = value;
 		}
+		inline void AddToQValue(State state, Action action, float value)
+		{
+			m_QTable[std::make_pair(state, action)] += value;
+		}
 		inline std::vector<Action> GetActions(const State state)
 		{
 			std::vector<Action> actions;
@@ -52,6 +66,57 @@ namespace QL
 				}
 			}
 			return actions;
+		}
+		inline void SaveToFile(const std::string& path, size_t numTrainedRounds)
+		{
+			std::ofstream file;
+			file.open(path);
+
+			for (auto& q : m_QTable)
+			{
+				file << "s " << q.first.first << " a " << q.first.second << " v " << q.second << "\n";
+			}
+			file.close();
+		}
+		inline void LoadFromFile(const std::string& path)
+		{
+			m_QTable.clear();
+
+			std::fstream file(path);
+			if (!file)
+			{
+				std::cout << "invalid QTable file!\n";
+				return;
+			}
+
+			std::string command;
+			State state{};
+			Action action{};
+			float value{};
+
+			while (!file.eof())
+			{
+				file >> command;
+
+				if (command == "s")
+				{
+					state = 0;
+					file >> state;
+				}
+				else if (command == "a")
+				{
+					action = 0;
+					file >> action;
+				}
+				else if (command == "v")
+				{
+					value = 0;
+					file >> value;
+
+					SetQValue(state, action, value);
+				}
+			}
+			file.close();
 		}
 
 	private:
@@ -75,7 +140,7 @@ namespace QL
 			auto nextStateReward{ m_QTable.GetQValue(nextState, action) };
 
 			auto value{ BellmanEquation(stateReward, m_Alpha, reward, m_Gamma, nextStateReward) };
-			m_QTable.SetQValue(state, action, value);
+			m_QTable.AddToQValue(state, action, value);
 		}
 
 		// select action the agent should perform at current state (at random or by highest value)
@@ -89,13 +154,15 @@ namespace QL
 
 			float maxQValue = GetMaxQValue(state, numActions);
 			// Choose the action with the highest Q-value if randomNumber is greater than epsilon
-			if (randomNumber > m_Epsilon && maxQValue != FLT_MIN)
+			if (randomNumber > m_Epsilon && maxQValue > FLT_MIN)
 			{
 				float epsilon = 0.0001f;
 				std::vector<Action> maxActions;
 				for (Action i{}; i < numActions; i++)
 				{
-					if (std::abs(m_QTable.GetQValue(state, i) - maxQValue) < epsilon)
+					auto currentQValue{ m_QTable.GetQValue(state, i) };
+					if (currentQValue >= FLT_MAX ||
+						std::abs(currentQValue - maxQValue) < epsilon)
 					{
 						maxActions.push_back(i);
 					}
@@ -106,7 +173,6 @@ namespace QL
 				size_t actionIndex = actionDis(gen);
 				return maxActions[actionIndex];
 			}
-
 			// Choose a random action if randomNumber is less than epsilon
 			else 
 			{
