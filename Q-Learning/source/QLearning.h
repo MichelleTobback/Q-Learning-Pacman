@@ -140,7 +140,7 @@ namespace QL
 			auto nextStateReward{ m_QTable.GetQValue(nextState, action) };
 
 			auto value{ BellmanEquation(stateReward, m_Alpha, reward, m_Gamma, nextStateReward) };
-			m_QTable.AddToQValue(state, action, value);
+			m_QTable.SetQValue(state, action, value);
 		}
 
 		// select action the agent should perform at current state (at random or by highest value)

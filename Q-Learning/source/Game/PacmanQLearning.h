@@ -15,7 +15,9 @@ struct PacmanQLearning
 		None,
 		EnemyFront, EnemyBack, EnemyLeft, EnemyRight,
 		CoinFront, CoinBack, CoinLeft, CoinRight,
-		WallFront, WallBack, WallLeft, WallRight
+		WallFront, WallBack, WallLeft, WallRight,
+
+		End = WallRight + 1
 	};
 
 	enum class ActionEventType
@@ -23,7 +25,7 @@ struct PacmanQLearning
 		None, HitByEnemy, PickedCoin, HitWall, Won, Lost
 	};
 
-	QL::QLearning ql{0.5f, 0.2f, 0.3f};
+	QL::QLearning ql{0.9f, 0.8f, 0.3f};
 	QL::Environment env{};
 	QL::Agent agent;
 

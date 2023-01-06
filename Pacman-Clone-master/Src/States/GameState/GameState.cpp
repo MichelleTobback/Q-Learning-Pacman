@@ -75,21 +75,22 @@ void GameState::Restart()
         CreateMapCollidersAndSnacks();
     }
 
-    for (auto& x : enemys)
-    {
-        delete x;
-        x = nullptr;
-    }
-
-    delete pacman;
-    pacman = nullptr;
+    //for (auto& x : enemys)
+    //{
+    //    delete x;
+    //    x = nullptr;
+    //}
+    //
+    //delete pacman;
+    //pacman = nullptr;
 
     isFreezed = true;
     entityThatWontFreeze = Entities::NotDefined;
     gameHasStarted = false;
     isPacmanDead = false;
 
-    CreatePacmanAndEnemys();
+    ResetPacmanAndEnemies();
+    //CreatePacmanAndEnemys();
     audioManager.PlaySound(Sounds::GameStart, false, VOLUME);
 
     //qlearning
@@ -177,14 +178,14 @@ void GameState::Draw()
     pacman->Draw(*window);
 
     //draw walls colliders
-    //for (int i = 0; i < NumberOfTilesX; i++)
-    //{
-    //    for (int j = 0 ; j < NumberOfTilesY; j++)
-    //    {
-    //        if(tileArray[i][j].DoesTileHaveType(sTile::TileType::Wall))
-    //            DrawCube(*window, sf::Vector2i(i, j), this);
-    //    }
-    //}
+    for (int i = 0; i < NumberOfTilesX; i++)
+    {
+        for (int j = 0 ; j < NumberOfTilesY; j++)
+        {
+            if(tileArray[i][j].DoesTileHaveType(sTile::TileType::Ghost))
+                DrawCube(*window, sf::Vector2i(i, j), this);
+        }
+    }
 
     for (auto const& x : enemys)
     {
@@ -339,8 +340,8 @@ void GameState::DrawTrainingState()
 
 void GameState::UpdateTrainingState(const float& deltaTime)
 {
-    constexpr const size_t numEpisodes{ 1000 };
-    for (int i{}; i < numEpisodes; i++)
+    constexpr const size_t numEpisodes{ 1000000 };
+    for (int i{}; i < numEpisodes / 2; i++)
     {
         if (m_QLearn->numTrainedRounds == numEpisodes)
         {
