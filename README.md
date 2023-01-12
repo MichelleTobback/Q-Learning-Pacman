@@ -54,14 +54,32 @@ The idea behind the algorithm goes as follows:
 
 Then I still had to decide how I was going to implement the possible states and actions.
 I decided to keep the q learning code abstract so it could be applied to other games and put everything that was needed specifically for pacman into the wrapper class.
-Because of this choice the q table consists of just usnigned int for the states and actions.
+Because of this choice the q table consists of just usnigned ints for the states and actions.
 In the wrapper struct, these are structs with possible actions and states.
 The states are the positions of the enemies, coins and walls relatively to the agent.
+
+```c++
+
+enum class StateType
+	{
+		None = 0,
+		EnemyFront = 1, EnemyBack = 2, EnemyLeft = 4, EnemyRight = 8,
+		CoinFront = 16, CoinBack = 32, CoinLeft = 64, CoinRight = 128,
+		WallFront = 256, WallBack = 512, WallLeft = 1024, WallRight = 2048,
+
+		Types = 13
+	};
+
+```
+
+
 For the actions its as simple as:
-* Up
-* Down
-* Left
-* Right 
+
+```c++
+
+enum class ActionType{Left, Right, Up, Down};
+
+```
 
 [//]: # (endlist)
 
@@ -77,10 +95,70 @@ To start of the algorithm, the Q-Table needs to be initialized to all zeros or l
 
 [//]: # (endlist)
 
+```c++
+
+void PacmanQLearning::Update(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman, bool isDead, int score)
+{
+	QL::Action action{ ql.SelectAction(env.GetCurrentState(), static_cast<size_t>(ActionType::Down) + 1) };
+	agent.PerformAction(action);
+	auto actionEvent{ ReflectAction(static_cast<ActionType>(action), pTiles, numTilesX, numTilesY, pPacman, isDead, score) };
+	float reward{env.GetReward(static_cast<QL::ActionEvent>(actionEvent))};
+	auto nextState{ static_cast<QL::State>(ObserveEnvironment(pTiles, numTilesX, numTilesY, pPacman)) };
+	ql.Learn(env.GetCurrentState(), action, nextState, reward);
+	env.SetCurrentState(nextState);
+}
+
+```
+
 In every update one action is chosen, this involves the hyperparameter epsilon.
-If this value is closer to 0, the agent choses its action mostly based on the highest q value.
-The higher the value, the more the action are chosen at random based on the epsilon-greedy strategy which is a method for balancing exploration and exploitation.
-After an action is chosen and executed, the environment returns a reward based on the environments response to this action (e.g. -1 if an enemy is hit or +1 if a snack is eaten).
+
+```c++
+
+Action SelectAction(State state, size_t numActions)
+		{
+			// Generate a random number to choose an action
+			std::random_device rd;
+			std::default_random_engine gen(rd());
+			std::uniform_real_distribution<double> dis(0.0, 1.0);
+			double randomNumber = dis(gen);
+
+			float maxQValue = GetMaxQValue(state, numActions);
+			// Choose the action with the highest Q-value if randomNumber is greater than epsilon
+			if (randomNumber > m_Epsilon && maxQValue > FLT_MIN)
+			{
+				float epsilon = 0.0001f;
+				std::vector<Action> maxActions;
+				for (Action i{}; i < numActions; i++)
+				{
+					auto currentQValue{ m_QTable.GetQValue(state, i) };
+					if (currentQValue >= FLT_MAX ||
+						std::abs(currentQValue - maxQValue) < epsilon)
+					{
+						maxActions.push_back(i);
+					}
+				}
+
+				// Choose a random action from the list of actions with the highest Q-value
+				std::uniform_int_distribution<size_t> actionDis(0, maxActions.size() - 1);
+				size_t actionIndex = actionDis(gen);
+				return maxActions[actionIndex];
+			}
+			// Choose a random action if randomNumber is less than epsilon
+			else 
+			{
+				std::uniform_int_distribution<int> actionDis(0, 3);
+				int actionIndex = actionDis(gen);
+				return actionIndex;
+			}
+		}
+    
+ ```
+
+> If this value is closer to 0, the agent choses its action mostly based on the highest q value.
+> The higher the value, the more the action are chosen at random based on the epsilon-greedy strategy which is a method for balancing exploration and exploitation.
+> After an action is chosen and executed, the environment returns a reward based on the environments response to this action (e.g. -1 if an enemy is hit or +1 if a 
+> snack is eaten).
+
 In this project, the rewards are:
 * -0.45 When nothing has happened (to encourage the agent to get to the goal as quickly as possible).
 * -4 when hit by an enemy.
@@ -93,10 +171,36 @@ In this project, the rewards are:
 [//]: # (endlist)
 
 After this, the environment determines what the current state is after the chosen action.
+> this function is specific to how the pacman game was implemented so i put it in the wrapper struct.
+> here I use a naive way to check the surrounding tiles for enemies, snacks and walls.
 
 When these steps are done the Q-Learning calculation (actual learning) happens:
+
+```c++
+
+void Learn(State state, Action action, State nextState, float reward)
+		{
+			auto stateReward{ m_QTable.GetQValue(state, action) };
+			auto nextStateReward{ m_QTable.GetQValue(nextState, action) };
+
+			auto value{ BellmanEquation(stateReward, m_Alpha, reward, m_Gamma, nextStateReward) };
+			m_QTable.SetQValue(state, action, value);
+		}
+    
+```
+
 Here it takes the Q-values of the previous state-action pair and the new state-action pair as well as the received reward and the hyperparameters alpha and gamma.
 These values are plugged into the bellman equation and added to the current Q value.
+
+```c++
+
+template<typename T>
+	T BellmanEquation(T state, T alpha, T reward, T gamma, T nextState)
+	{
+		return state + alpha * (reward + gamma * nextState - state);
+	}
+  
+```
 
 ![1_EQ-tDj-iMdsHlGKUR81Xgw](https://user-images.githubusercontent.com/58373355/212123002-5222db16-ea01-47f3-b9d7-dfc021225d74.png)
 
