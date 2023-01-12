@@ -29,13 +29,28 @@ In this research I will make use c++ and apply it to a pacman game i found on gi
 I started the project by adding a basic controller to the game for which the pacman could be controlled by the agents actions.
 
 My implementation of this algorithm consists of :
--the Environment (responsible for rewards on the chosen actions)
--the Agent (chooses actions and controls the pacman)
--Q-table class
--Q-learning class (is responsible for the implementation of the algorithm)
--Wrapper struct (which brings together the different parts and to change as little as possible of the original game)
+* the Environment 
+> responsible for rewards on the chosen actions
+* the Agent 
+> chooses actions and controls the pacman
+* Q-table class
+> keeps track of the Q-Values
+* Q-learning class 
+> is responsible for the implementation of the algorithm
+* Wrapper struct  
+> which brings together the different parts and to change as little as possible of the original game
 
 [//]: # (endlist)
+
+The idea behind the algorithm goes as follows:
+
+![1_mPGk9WTNNvp3i4-9JFgD3w](https://user-images.githubusercontent.com/58373355/212118764-e2bbaac4-3eff-4add-a977-4f4aa50d6ca9.png)
+
+> agent chooses action,
+> environment returns a reward,
+> environment determines new state of the agent,
+> calculate new Q-value,
+> Repeat
 
 Then I still had to decide how I was going to implement the possible states and actions.
 I decided to keep the q learning code abstract so it could be applied to other games and put everything that was needed specifically for pacman into the wrapper class.
@@ -82,6 +97,9 @@ After this, the environment determines what the current state is after the chose
 When these steps are done the Q-Learning calculation (actual learning) happens:
 Here it takes the Q-values of the previous state-action pair and the new state-action pair as well as the received reward and the hyperparameters alpha and gamma.
 These values are plugged into the bellman equation and added to the current Q value.
+
+![1_EQ-tDj-iMdsHlGKUR81Xgw](https://user-images.githubusercontent.com/58373355/212123002-5222db16-ea01-47f3-b9d7-dfc021225d74.png)
+
 The alpha value will determine how fast the agent learns and gamma determines how much future rewards will be taken into account.
 these values will be different for every usecase and possible states.
 A high learning rate can cause the agent to react too strongly to new information, leading to instability in the Q-values and poor performance.
@@ -113,4 +131,3 @@ The network takes the state as input and outputs a Q-value for each action. This
 DQN can also learn from sensory inputs, such as raw pixels from video frames
 
 ## Sources
-
