@@ -216,6 +216,13 @@ The more states that are possible, the more accurate decisions the agent will be
 
 ## Result
 
+agent without training
+<video src='https://user-images.githubusercontent.com/58373355/212176078-59c1fc47-f8ae-48ba-a6da-11ca08ad4baf.mp4' width=180/>
+
+
+agent after 50000+ episodes
+<video src='https://user-images.githubusercontent.com/58373355/212176479-f1ece3c8-3b9c-46d7-920f-9e12736d45bf.mp4' width=180/>
+
 ### Conclusion
 Q-Learning is a fairly simple form of reinforcement learning to apply but has the danger of rapidly requiring too many states for the agent to make correct decisions.
 The way that I implemented is still very much tied to the game itself for things such as knowing where there are enemies and snacks or determining the reaction to actions.
