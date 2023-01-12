@@ -44,7 +44,7 @@ For the actions its as simple as:
 * Up
 * Down
 * Left
-* Right
+* Right 
 It was quickly apparent that with the current states the agent does not have enough information to learn and make correct decisions.
 I needed a way to combine these possible states so that the agent also has states for say, an enemy on the left and a coin above.
 For this I chose to make the enum states bitflags which can thus be easily combined.
@@ -53,7 +53,7 @@ To start of the algorithm, the Q-Table needs to be initialized to all zeros or l
 3 hyperparameters (values 0-1) are used which influence the result of the calculated Q-Values.
 * Learning rate (alpha)
 * Discount rate (gamma)
-* epsilon
+* epsilon 
 In every update one action is chosen, this involves the hyperparameter epsilon.
 If this value is closer to 0, the agent choses its action mostly based on the highest q value.
 The higher the value, the more the action are chosen at random based on the epsilon-greedy strategy which is a method for balancing exploration and exploitation.
