@@ -1,5 +1,6 @@
 # Q-Learning-Pacman
 
+<video src='https://user-images.githubusercontent.com/58373355/212176479-f1ece3c8-3b9c-46d7-920f-9e12736d45bf.mp4' width=180/>
 
 ## Description
 
