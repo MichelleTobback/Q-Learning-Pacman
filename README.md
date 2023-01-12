@@ -131,8 +131,8 @@ The network takes the state as input and outputs a Q-value for each action. This
 DQN can also learn from sensory inputs, such as raw pixels from video frames
 
 ## Sources
-[Pacman-game source code](https://github.com/NicolasPCouts/Pacman-Clone.git)
-[towardsdatascience](https://towardsdatascience.com/reinforcement-learning-101-e24b50e1d292)
-[RLbook2020.pdf](http://incompleteideas.net/book/RLbook2020.pdf)
-[wikipedia](https://en.wikipedia.org/wiki/Q-learning)
-[Can a robot learn by itself how to clean my appartement? (C++ reinforcement learning)](https://www.youtube.com/watch?v=Xn-8HNuoFaA&t=1187s&ab_channel=ZenSepiol)
+* [Pacman-game source code](https://github.com/NicolasPCouts/Pacman-Clone.git)
+* [towardsdatascience](https://towardsdatascience.com/reinforcement-learning-101-e24b50e1d292)
+* [RLbook2020.pdf](http://incompleteideas.net/book/RLbook2020.pdf)
+* [wikipedia](https://en.wikipedia.org/wiki/Q-learning)
+* [Can a robot learn by itself how to clean my appartement? (C++ reinforcement learning)](https://www.youtube.com/watch?v=Xn-8HNuoFaA&t=1187s&ab_channel=ZenSepiol)
