@@ -14,15 +14,15 @@ In this project I will explore q learning.
 This is a type of reinforcement learning algorithm that uses a Q-table to store information about the best action to take in a given state. 
 It is a model-free algorithm, meaning that it does not require a model of the environment in order to learn.
 Unlike model-based algorithms, which has the ability to compute prediction, a model-free algorithm can only make decisions through experience.
-Q-learning uses a q-table which is a matrix with as rows, the possible states and the possible actions as columns.
+Q-learning uses a Q-table which is a matrix with as rows, the possible states and the possible actions as columns.
 This qTable is updated by means of the Bellman equation which I will explain further in the implementation section.
-After the agent has executed some random actions and several values have been filled into the q-table, the agent will choose more and more actions based on the highest q-value at the current state.
+After the agent has executed some random actions and several values have been filled into the Q-table, the agent will choose more and more actions based on the highest Q-value at the current state.
 
 ### Motivation
 
 Reinforcement learning is a topic that interests me but that I did not have much experience with. 
 because of this I found it interesting to delve further into this topic.
-In this research I will make use c++ and apply it to a pacman game i found on github (link below).
+In this research I will make use of c++ and apply it to a pacman game i found on github (link below).
 
 ## Implementation
 
@@ -33,7 +33,7 @@ My implementation of this algorithm consists of :
 > responsible for rewards on the chosen actions
 * the Agent 
 > chooses actions and controls the pacman
-* Q-table class
+* Q-Table class
 > keeps track of the Q-Values
 * Q-learning class 
 > is responsible for the implementation of the algorithm
@@ -46,16 +46,16 @@ The idea behind the algorithm goes as follows:
 
 ![1_mPGk9WTNNvp3i4-9JFgD3w](https://user-images.githubusercontent.com/58373355/212118764-e2bbaac4-3eff-4add-a977-4f4aa50d6ca9.png)
 
-> agent chooses action,
-> environment returns a reward,
-> environment determines new state of the agent,
-> calculate new Q-value,
-> Repeat
+> the agent chooses an action,
+> the environment returns a reward,
+> the environment determines new state of the agent,
+> calculate new Q-Value,
+> repeat
 
 Then I still had to decide how I was going to implement the possible states and actions.
-I decided to keep the q learning code abstract so it could be applied to other games and put everything that was needed specifically for pacman into the wrapper class.
-Because of this choice the q table consists of just usnigned ints for the states and actions.
-In the wrapper struct, these are structs with possible actions and states.
+I decided to keep the Q-Learning code abstract so it could be applied to other games and put everything that was needed specifically for pacman into the wrapper class.
+Because of this choice the Q-Table consists of just unsigned ints for the states and actions.
+In the wrapper struct, these are represented by enum classes with possible actions and states.
 The states are the positions of the enemies, coins and walls relatively to the agent.
 
 ```c++
@@ -156,8 +156,9 @@ Action SelectAction(State state, size_t numActions)
 
 > If this value is closer to 0, the agent choses its action mostly based on the highest q value.
 > The higher the value, the more the action are chosen at random based on the epsilon-greedy strategy which is a method for balancing exploration and exploitation.
-> After an action is chosen and executed, the environment returns a reward based on the environments response to this action (e.g. -1 if an enemy is hit or +1 if a 
-> snack is eaten).
+
+After an action is chosen and executed, the environment returns a reward based on the environments response to this action (e.g. -1 if an enemy is hit or +1 if a 
+snack is eaten).
 
 In this project, the rewards are:
 * -0.45 When nothing has happened (to encourage the agent to get to the goal as quickly as possible).
@@ -189,8 +190,8 @@ void Learn(State state, Action action, State nextState, float reward)
     
 ```
 
-Here it takes the Q-values of the previous state-action pair and the new state-action pair as well as the received reward and the hyperparameters alpha and gamma.
-These values are plugged into the bellman equation and added to the current Q value.
+Here it takes the Q-Values of the previous state-action pair and the new state-action pair as well as the received reward and the hyperparameters alpha and gamma.
+These values are plugged into the bellman equation and added to the current Q-Value.
 
 ```c++
 
@@ -224,7 +225,7 @@ agent after 50000+ episodes
 <video src='https://user-images.githubusercontent.com/58373355/212176479-f1ece3c8-3b9c-46d7-920f-9e12736d45bf.mp4' width=180/>
 
 ### Conclusion
-Q-Learning is a fairly simple form of reinforcement learning to apply but has the danger of rapidly requiring too many states for the agent to make correct decisions.
+Q-Learning is a fairly simple form of reinforcement learning, in comparison to other types, to apply but has the danger of rapidly requiring too many states for the agent to make correct decisions.
 The way that I implemented is still very much tied to the game itself for things such as knowing where there are enemies and snacks or determining the reaction to actions.
 After many hours of having the agent trained, I still haven't managed to let the agent finish the game. 
 I suspect this is because the agent still does not have enough information about the environment and only knows when an enemy, snack or wall is 1 tile away from the agent (up, down, left, right).
@@ -233,7 +234,8 @@ The problem occurs when an enemy comes from behind the corner because the agent 
 
 ### Possible future improvements
 For this application it would be ideal if there were combination of the current states with every possible tile that the agent could run
-so that the agent does not always make the same mistakes in the same places and this would solve the problem of enemies coming from behind a corner.
+so that the agent does not always make the same mistakes in the same places.
+This would solve the problem of enemies coming from behind a corner.
 But this would drastically increase states which would also require the agent to train for a much longer time.
 
 Also, another form of reinforcement learning would come in handy for this application such as Deep Q-Learning (DQN).
@@ -243,7 +245,7 @@ DQN can also learn from sensory inputs, such as raw pixels from video frames
 
 ## Sources
 * [Pacman-game source code](https://github.com/NicolasPCouts/Pacman-Clone.git)
-* [towardsdatascience](https://towardsdatascience.com/reinforcement-learning-101-e24b50e1d292)
+* [Towards Data Science](https://towardsdatascience.com/reinforcement-learning-101-e24b50e1d292)
 * [RLbook2020.pdf](http://incompleteideas.net/book/RLbook2020.pdf)
-* [wikipedia](https://en.wikipedia.org/wiki/Q-learning)
+* [Wikipedia](https://en.wikipedia.org/wiki/Q-learning)
 * [Can a robot learn by itself how to clean my appartement? (C++ reinforcement learning)](https://www.youtube.com/watch?v=Xn-8HNuoFaA&t=1187s&ab_channel=ZenSepiol)
