@@ -5,15 +5,15 @@
 
 ### Reinforcement Learning
 
-Reinforcement Learning (RL) is a type of Machine learning that teaches an agent to act on its own in an interactive environment through trial and error.
+Reinforcement Learning (RL) is a type of machine learning that teaches an agent to act on its own in an interactive environment through trial and error.
 The agent chooses possible actions after which the environment gives feedback according to what happened by means of a reward (positive values after a good result or negative values as a penalty for a bad action).
 
 ### Q-learning
 
 In this project I will explore q learning.
-Q-learning is a type of reinforcement learning algorithm that uses a Q-table to store information about the best action to take in a given state. 
+This is a type of reinforcement learning algorithm that uses a Q-table to store information about the best action to take in a given state. 
 It is a model-free algorithm, meaning that it does not require a model of the environment in order to learn.
-Unlike model-based algorithms (which has the ability to compute prediction), a model-free algorithm can only make decisions through experience.
+Unlike model-based algorithms, which has the ability to compute prediction, a model-free algorithm can only make decisions through experience.
 Q-learning uses a q-table which is a matrix with as rows, the possible states and the possible actions as columns.
 This qTable is updated by means of the Bellman equation which I will explain further in the implementation section.
 After the agent has executed some random actions and several values have been filled into the q-table, the agent will choose more and more actions based on the highest q-value at the current state.
