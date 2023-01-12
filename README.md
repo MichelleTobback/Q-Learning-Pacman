@@ -1,6 +1,6 @@
 # Q-Learning-Pacman
 
-<video src='https://user-images.githubusercontent.com/58373355/212176479-f1ece3c8-3b9c-46d7-920f-9e12736d45bf.mp4' width=180/>
+![Pacman_2023-01-12_21-10-44_Trim_AdobeExpress (1)](https://user-images.githubusercontent.com/58373355/212186019-418e3491-dd6f-4a69-8b46-d23722aadd11.gif)
 
 ## Description
 
