@@ -41,31 +41,31 @@ Because of this choice the q table consists of just usnigned int for the states 
 In the wrapper struct, these are structs with possible actions and states.
 The states are the positions of the enemies, coins and walls relatively to the agent.
 For the actions its as simple as:
--Up
--Down
--Left
--Right
+* Up
+* Down
+* Left
+* Right
 It was quickly apparent that with the current states the agent does not have enough information to learn and make correct decisions.
 I needed a way to combine these possible states so that the agent also has states for say, an enemy on the left and a coin above.
 For this I chose to make the enum states bitflags which can thus be easily combined.
 
 To start of the algorithm, the Q-Table needs to be initialized to all zeros or loaded from a file with values previously learned.
 3 hyperparameters (values 0-1) are used which influence the result of the calculated Q-Values.
--Learning rate (alpha)
--Discount rate (gamma)
--epsilon
+* Learning rate (alpha)
+* Discount rate (gamma)
+* epsilon
 In every update one action is chosen, this involves the hyperparameter epsilon.
 If this value is closer to 0, the agent choses its action mostly based on the highest q value.
 The higher the value, the more the action are chosen at random based on the epsilon-greedy strategy which is a method for balancing exploration and exploitation.
 After an action is chosen and executed, the environment returns a reward based on the environments response to this action (e.g. -1 if an enemy is hit or +1 if a snack is eaten).
 In this project, the rewards are:
-- -0.45 When nothing has happened (to encourage the agent to get to the goal as quickly as possible).
-- -4 when hit by an enemy.
-- +4 when a snack is eaten.
-- -2 when hit by a wall.
-- +20 when won (all snacks eaten).
-- -10 when lost.
-- +10 when the highscore is beaten.
+* -0.45 When nothing has happened (to encourage the agent to get to the goal as quickly as possible).
+* -4 when hit by an enemy.
+* +4 when a snack is eaten.
+* -2 when hit by a wall.
+* +20 when won (all snacks eaten).
+* -10 when lost.
+* +10 when the highscore is beaten.
 After this, the environment determines what the current state is after the chosen action.
 
 When these steps are done the Q-Learning calculation (actual learning) happens:
