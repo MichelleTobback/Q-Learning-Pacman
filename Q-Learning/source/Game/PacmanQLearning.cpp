@@ -10,12 +10,22 @@
 void PacmanQLearning::Init(Controller* pController, const std::string& path)
 {
 	currentPath = path;
+
+	if (trainingState)
+	{
+		ql = QL::QLearning(0.3f, 0.9f, 0.2f);
+	}
+	else
+	{
+		ql = QL::QLearning(0.f, 0.9f, 0.f);
+	}
+
 	InitQTable();
 	InitEnvironment();
 	InitAgent(pController);
 }
 
-void PacmanQLearning::Update(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman)
+void PacmanQLearning::Update(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman, bool isDead, int score)
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
 	{
@@ -24,10 +34,9 @@ void PacmanQLearning::Update(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int n
 
 	QL::Action action{ ql.SelectAction(env.GetCurrentState(), static_cast<size_t>(ActionType::Down) + 1) };
 	agent.PerformAction(action);
-	auto actionEvent{ ReflectAction(static_cast<ActionType>(action), pTiles, numTilesX, numTilesY, pPacman) };
+	auto actionEvent{ ReflectAction(static_cast<ActionType>(action), pTiles, numTilesX, numTilesY, pPacman, isDead, score) };
 	float reward{env.GetReward(static_cast<QL::ActionEvent>(actionEvent))};
 	auto nextState{ static_cast<QL::State>(ObserveEnvironment(pTiles, numTilesX, numTilesY, pPacman)) };
-	//auto nextState{ ObserveEnvironmentCombinedStates(pTiles, numTilesX, numTilesY, pPacman) };
 	ql.Learn(env.GetCurrentState(), action, nextState, reward);
 	env.SetCurrentState(nextState);
 }
@@ -41,52 +50,22 @@ void PacmanQLearning::InitQTable()
 	}
 
 	//combined states
-	QL::State numStates{ static_cast<QL::State>(StateType::End) };
-	ql.GetQTable().SetQValue(QL::CombineStates({ 0 }), static_cast<QL::Action>(ActionType::Left), 0.f);
-	ql.GetQTable().SetQValue(QL::CombineStates({ 0 }), static_cast<QL::Action>(ActionType::Right), 0.f);
-	ql.GetQTable().SetQValue(QL::CombineStates({ 0 }), static_cast<QL::Action>(ActionType::Up), 0.f);
-	ql.GetQTable().SetQValue(QL::CombineStates({ 0 }), static_cast<QL::Action>(ActionType::Down), 0.f);
-	for (QL::State state{ }; state < numStates; ++state)
+	size_t numStates{ static_cast<size_t>(StateType::Types) };
+	for (size_t i{0}; i < numStates; ++i)
 	{
-		QL::State currentStateA{ QL::CombineStates({ state }) };
-		ql.GetQTable().SetQValue(currentStateA, static_cast<QL::Action>(ActionType::Left), 0.f);
-		ql.GetQTable().SetQValue(currentStateA, static_cast<QL::Action>(ActionType::Right), 0.f);
-		ql.GetQTable().SetQValue(currentStateA, static_cast<QL::Action>(ActionType::Up), 0.f);
-		ql.GetQTable().SetQValue(currentStateA, static_cast<QL::Action>(ActionType::Down), 0.f);
-		for (QL::State stateB{}; stateB < numStates; ++stateB)
+		QL::State stateI{ TO_STATE(1 << i) };
+		ql.GetQTable().SetQValue(stateI, static_cast<QL::Action>(ActionType::Left), 0.f);
+		ql.GetQTable().SetQValue(stateI, static_cast<QL::Action>(ActionType::Right), 0.f);
+		ql.GetQTable().SetQValue(stateI, static_cast<QL::Action>(ActionType::Up), 0.f);
+		ql.GetQTable().SetQValue(stateI, static_cast<QL::Action>(ActionType::Down), 0.f);
+
+		for (size_t j{ i + 1 }; j < numStates; ++j)
 		{
-			if (state == stateB)
-				continue;
-
-			QL::State currentStateB{ QL::CombineStates({state, stateB}) };
-			ql.GetQTable().SetQValue(currentStateB, static_cast<QL::Action>(ActionType::Left), 0.f);
-			ql.GetQTable().SetQValue(currentStateB, static_cast<QL::Action>(ActionType::Right), 0.f);
-			ql.GetQTable().SetQValue(currentStateB, static_cast<QL::Action>(ActionType::Up), 0.f);
-			ql.GetQTable().SetQValue(currentStateB, static_cast<QL::Action>(ActionType::Down), 0.f);
-
-			for (QL::State stateC{}; stateC < numStates; ++stateC)
-			{
-				if (stateB == stateC)
-					continue;
-
-				QL::State currentStateC{ QL::CombineStates({state, stateB, stateC}) };
-				ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Left), 0.f);
-				ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Right), 0.f);
-				ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Up), 0.f);
-				ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Down), 0.f);
-
-				for (QL::State stateD{}; stateD < numStates; ++stateD)
-				{
-					if (stateC == stateD)
-						continue;
-
-					QL::State currentStateC{ QL::CombineStates({state, stateB, stateC, stateD}) };
-					ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Left), 0.f);
-					ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Right), 0.f);
-					ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Up), 0.f);
-					ql.GetQTable().SetQValue(currentStateC, static_cast<QL::Action>(ActionType::Down), 0.f);
-				}
-			}
+			QL::State statej{ stateI | TO_STATE(1 << j) };
+			ql.GetQTable().SetQValue(statej, static_cast<QL::Action>(ActionType::Left), 0.f);
+			ql.GetQTable().SetQValue(statej, static_cast<QL::Action>(ActionType::Right), 0.f);
+			ql.GetQTable().SetQValue(statej, static_cast<QL::Action>(ActionType::Up), 0.f);
+			ql.GetQTable().SetQValue(statej, static_cast<QL::Action>(ActionType::Down), 0.f);
 		}
 	}
 }
@@ -94,11 +73,12 @@ void PacmanQLearning::InitQTable()
 void PacmanQLearning::InitEnvironment()
 {
 	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::None), -0.45f);
-	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::HitByEnemy), -1.f);
-	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::PickedCoin), 1.f);
-	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::HitWall), -1.f);
+	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::HitByEnemy), -4.f);
+	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::PickedCoin), 4.f);
+	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::HitWall), -2.f);
 	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::Won), 20.f);
 	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::Lost), -10.f);
+	env.AddActionEvent(static_cast<QL::ActionEvent>(ActionEventType::HighscoreBeaten), 10.f);
 }
 
 void PacmanQLearning::InitAgent(Controller* pController)
@@ -121,83 +101,85 @@ QL::State PacmanQLearning::ObserveEnvironment(sTile pTiles[NumberOfTilesX][Numbe
 	sTile* tileLeft{ (gridPos.x - 1 >= 0) ? &pTiles[gridPos.x - 1][gridPos.y] : nullptr };
 	sTile* tileRight{ (gridPos.x + 1 < numTilesX) ? &pTiles[gridPos.x + 1][gridPos.y] : nullptr };
 
+	sTile* tile2Up{ (gridPos.y - 2 >= 0) ? &pTiles[gridPos.x][gridPos.y - 2] : nullptr };
+	sTile* tile2Down{ (gridPos.y + 2 < numTilesY) ? &pTiles[gridPos.x][gridPos.y + 2] : nullptr };
+	sTile* tile2Left{ (gridPos.x - 2 >= 0) ? &pTiles[gridPos.x - 2][gridPos.y] : nullptr };
+	sTile* tile2Right{ (gridPos.x + 2 < numTilesX) ? &pTiles[gridPos.x + 2][gridPos.y] : nullptr };
+
 	bool left{ false }, right{ false }, up{ false }, down{ false };
 
-	// chack for enemies
-	if ((tileUp && tileUp->DoesTileHaveType(sTile::Ghost)))
+	// check for enemies
+	if ((tileUp && tileUp->DoesTileHaveType(sTile::Ghost))
+		|| (tile2Up && tile2Up->DoesTileHaveType(sTile::Ghost)
+			&& !tileUp->DoesTileHaveType(sTile::Wall)))
 	{
 		up = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::EnemyFront));
+		states.push_back(TO_STATE(PacmanQLearning::StateType::EnemyFront));
 	}
-	if ((tileDown && tileDown->DoesTileHaveType(sTile::Ghost)))
+	if ((tileDown && tileDown->DoesTileHaveType(sTile::Ghost))
+		|| (tile2Down && tile2Down->DoesTileHaveType(sTile::Ghost)
+			&& !tileDown->DoesTileHaveType(sTile::Wall)))
 	{
 		down = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::EnemyBack));
-		//return PacmanQLearning::StateType::EnemyBack;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::EnemyBack));
 	}
-	if ((tileRight && tileRight->DoesTileHaveType(sTile::Ghost)))
+	if ((tileRight && tileRight->DoesTileHaveType(sTile::Ghost))
+		|| (tile2Right && tile2Right->DoesTileHaveType(sTile::Ghost)
+			&& !tileRight->DoesTileHaveType(sTile::Wall)))
 	{
 		right = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::EnemyRight));
-		//return PacmanQLearning::StateType::EnemyRight;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::EnemyRight));
 	}
-	if ((tileLeft && tileLeft->DoesTileHaveType(sTile::Ghost)))
+	if ((tileLeft && tileLeft->DoesTileHaveType(sTile::Ghost))
+		|| (tile2Left && tile2Left->DoesTileHaveType(sTile::Ghost)
+			&& !tileLeft->DoesTileHaveType(sTile::Wall)))
 	{
 		left = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::EnemyLeft));
-		//return PacmanQLearning::StateType::EnemyLeft;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::EnemyLeft));
 	}
 
 	//check for coins
 	if (!up && tileUp && tileUp->DoesTileHaveType(sTile::Snack))
 	{
 		up = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::CoinFront));
-		//return PacmanQLearning::StateType::CoinFront;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::CoinFront));
 	}
 	if (!down && tileDown && tileDown->DoesTileHaveType(sTile::Snack))
 	{
 		down = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::CoinBack));
-		//return PacmanQLearning::StateType::CoinBack;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::CoinBack));
 	}
 	if (!right && tileRight && tileRight->DoesTileHaveType(sTile::Snack))
 	{
 		right = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::CoinRight));
-		//return PacmanQLearning::StateType::CoinRight;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::CoinRight));
 	}
 	if (!left && tileLeft && tileLeft->DoesTileHaveType(sTile::Snack))
 	{
 		left = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::CoinLeft));
-		//return PacmanQLearning::StateType::CoinLeft;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::CoinLeft));
 	}
 
 	//check for wall
 	if (!up && tileUp && tileUp->DoesTileHaveType(sTile::Wall))
 	{
 		up = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::WallFront));
-		//return PacmanQLearning::StateType::WallFront;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::WallFront));
 	}
 	if (!down && tileDown && tileDown->DoesTileHaveType(sTile::Wall))
 	{
 		down = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::WallBack));
-		//return PacmanQLearning::StateType::WallBack;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::WallBack));
 	}
 	if (!right && tileRight && tileRight->DoesTileHaveType(sTile::Wall))
 	{
 		right = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::WallRight));
-		//return PacmanQLearning::StateType::WallRight;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::WallRight));
 	}
 	if (!left && tileLeft && tileLeft->DoesTileHaveType(sTile::Wall))
 	{
 		left = true;
-		states.push_back(static_cast<QL::State>(PacmanQLearning::StateType::WallLeft));
-		//return PacmanQLearning::StateType::WallLeft;
+		states.push_back(TO_STATE(PacmanQLearning::StateType::WallLeft));
 	}
 
 	if (states.size() > 4)
@@ -209,102 +191,57 @@ QL::State PacmanQLearning::ObserveEnvironment(sTile pTiles[NumberOfTilesX][Numbe
 	return QL::CombineStates(states);
 }
 
-//combined states method
-QL::State PacmanQLearning::ObserveEnvironmentCombinedStates(sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman)
+PacmanQLearning::ActionEventType PacmanQLearning::ReflectAction(ActionType action, sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman, bool isDead, int score)
 {
-	auto gridPos{ pPacman->gridPos };
-	size_t tileIdx{ static_cast<size_t>(gridPos.x * numTilesY + gridPos.y) };
+	if (isDead)
+		return PacmanQLearning::ActionEventType::Lost;
 
-	QL::State state{ static_cast<QL::State>(PacmanQLearning::StateType::None) };
-
-	// check for enemies
-	if (pTiles[gridPos.x + 1][gridPos.y].DoesTileHaveType(sTile::Ghost))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::EnemyRight);
-	}
-	else if (pTiles[gridPos.x - 1][gridPos.y].DoesTileHaveType(sTile::Ghost))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::EnemyLeft);
-	}
-	else if (pTiles[gridPos.x][gridPos.y - 1].DoesTileHaveType(sTile::Ghost))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::EnemyFront);
-	}
-	else if (pTiles[gridPos.x][gridPos.y + 1].DoesTileHaveType(sTile::Ghost))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::EnemyBack);
-	}
-
-	//check for coins
-	if (pTiles[gridPos.x + 1][gridPos.y].DoesTileHaveType(sTile::Snack))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::CoinRight);
-	}
-	else if (pTiles[gridPos.x - 1][gridPos.y].DoesTileHaveType(sTile::Snack))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::CoinLeft);
-	}
-	else if (pTiles[gridPos.x][gridPos.y - 1].DoesTileHaveType(sTile::Snack))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::CoinFront);
-	}
-	else if (pTiles[gridPos.x][gridPos.y + 1].DoesTileHaveType(sTile::Snack))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::CoinBack);
-	}
-
-	//check for wall
-	if (pTiles[gridPos.x + 1][gridPos.y].DoesTileHaveType(sTile::Wall))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::WallRight);
-	}
-	else if (pTiles[gridPos.x - 1][gridPos.y].DoesTileHaveType(sTile::Wall))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::WallLeft);
-	}
-	else if (pTiles[gridPos.x][gridPos.y - 1].DoesTileHaveType(sTile::Wall))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::WallFront);
-	}
-	else if (pTiles[gridPos.x][gridPos.y + 1].DoesTileHaveType(sTile::Wall))
-	{
-		state |= static_cast<QL::State>(PacmanQLearning::StateType::WallBack);
-	}
-	return state;
-}
-
-PacmanQLearning::ActionEventType PacmanQLearning::ReflectAction(ActionType action, sTile pTiles[NumberOfTilesX][NumberOfTilesY], int numTilesX, int numTilesY, Pacman* pPacman)
-{
+	sf::Vector2i newGridPos{  };
 	sf::Vector2i nextGridPos{  };
 	switch (action)
 	{
 	case ActionType::Left:
-		nextGridPos = pPacman->gridPos + sf::Vector2i{ 0, -1 };
+		newGridPos = pPacman->gridPos + sf::Vector2i{ -1, 0 };
+		nextGridPos = pPacman->gridPos + sf::Vector2i{ -2, 0 };
 		break;
 
 	case ActionType::Right:
-		nextGridPos = pPacman->gridPos + sf::Vector2i{ 0, 1 };
+		newGridPos = pPacman->gridPos + sf::Vector2i{ 1, 0 };
+		nextGridPos = pPacman->gridPos + sf::Vector2i{ 2, 0 };
 		break;
 
 	case ActionType::Up:
-		nextGridPos = pPacman->gridPos + sf::Vector2i{ 1, 0 };
+		newGridPos = pPacman->gridPos + sf::Vector2i{ 0, -1 };
+		nextGridPos = pPacman->gridPos + sf::Vector2i{ 0, -2 };
 		break;
 
 	case ActionType::Down:
-		nextGridPos = pPacman->gridPos + sf::Vector2i{ -1, 0 };
+		newGridPos = pPacman->gridPos + sf::Vector2i{ 0, 1 };
+		nextGridPos = pPacman->gridPos + sf::Vector2i{ 0, 2 };
 		break;
 	}
+	sTile* pCurrentPos{ &pTiles[pPacman->gridPos.x][pPacman->gridPos.y] };
+	sTile* pTile{ (newGridPos.x >= 0 && newGridPos.x < numTilesX &&
+		newGridPos.y >= 0 && newGridPos.y < NumberOfTilesY) ? 
+		&pTiles[newGridPos.x][newGridPos.y] : nullptr};
+	sTile* nextGridTile{ (nextGridPos.x >= 0 && nextGridPos.x < numTilesX &&
+		nextGridPos.y >= 0 && nextGridPos.y < NumberOfTilesY) ?
+		&pTiles[nextGridPos.x][nextGridPos.y] : nullptr };
 
-	sTile* pTile{ (nextGridPos.x >= 0 && nextGridPos.x < numTilesX &&
-		nextGridPos.y >= 0 && nextGridPos.y < NumberOfTilesY) ? 
-		&pTiles[nextGridPos.x][nextGridPos.y] : nullptr};
-
-	if (pTile && pTile->DoesTileHaveType(sTile::Ghost))
+	if ((pCurrentPos->DoesTileHaveType(sTile::Ghost))
+		|| (pTile && pTile->DoesTileHaveType(sTile::Ghost))
+		|| (nextGridTile && nextGridTile->DoesTileHaveType(sTile::Ghost) && !pTile->DoesTileHaveType(sTile::Wall)))
 	{
 		return PacmanQLearning::ActionEventType::HitByEnemy;
 	}
 	else if (pTile && pTile->DoesTileHaveType(sTile::Snack))
 	{
+		if (score + 10 > highscore)
+		{
+			highscore = score + 10;
+			return PacmanQLearning::ActionEventType::HighscoreBeaten;
+		}
+
 		return PacmanQLearning::ActionEventType::PickedCoin;
 	}
 	else if (pTile && pTile->DoesTileHaveType(sTile::Wall))

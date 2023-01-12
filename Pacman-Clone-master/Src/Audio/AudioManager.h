@@ -9,7 +9,7 @@ class AudioManager
 {
 public:
 	AudioManager();
-	void PlaySound(Sounds soundType, bool loop, int volume);
+	void PlaySound(Sounds soundType, bool loop, float volume);
 	void StopSound(Sounds soundType = Sounds::None);
 	bool IsPlayingAudio(Sounds soundType);
 	void SetVolume(float volume);

@@ -14,10 +14,10 @@ namespace QL
 
 	static State CombineStates(const std::vector<State>& values)
 	{
-		auto hash{ std::hash<State>{}(values[0]) };
+		State state{ values[0] };
 		for (size_t i{ 1 }; i < values.size(); i++)
-			hash ^= std::hash<State>{}(values[i]);
-		return static_cast<State>(hash);
+			state |= values[0];
+		return state;
 	}
 
 	struct StateAction_Hash

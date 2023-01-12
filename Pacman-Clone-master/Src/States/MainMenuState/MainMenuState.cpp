@@ -2,7 +2,6 @@
 
 #include "../../GameManager.h"
 #include "../GameState/GameState.h"
-#include "../Q-Learning/source/Game/TrainingState.h"
 
 MainMenuState::MainMenuState(sf::RenderWindow* window, std::stack<State*>* states, GameManager* gameManager)
 	: State(window, states, gameManager) 

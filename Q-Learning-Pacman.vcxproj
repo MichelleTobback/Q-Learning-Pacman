@@ -163,7 +163,6 @@
     <ClInclude Include="Q-Learning\source\QLearning.h" />
     <ClInclude Include="Q-Learning\source\QLEnvironment.h" />
     <ClInclude Include="Q-Learning\source\QLAgent.h" />
-    <ClInclude Include="Q-Learning\source\QLState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Q-Learning\source\Game\PacmanQLearning.cpp" />

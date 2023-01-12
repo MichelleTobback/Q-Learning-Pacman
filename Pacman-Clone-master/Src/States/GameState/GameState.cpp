@@ -35,6 +35,7 @@ GameState::GameState(sf::RenderWindow* window, std::stack<State*>* states, GameM
 
     m_QLearn = new PacmanQLearning();
     m_QLearn->Init(&m_Controller, "Q-Learning/source/Saves/QTablePacman.txt");
+    //m_QLearn->Init(&m_Controller, "");
 }
 
 GameState::~GameState() 
@@ -70,10 +71,10 @@ void GameState::Restart()
     {
         lifes = 3;
         score = 0;
-        DeleteSnacks();
-        EmptyTileArray();
-        CreateMapCollidersAndSnacks();
     }
+    DeleteSnacks();
+    EmptyTileArray();
+    CreateMapCollidersAndSnacks();
 
     //for (auto& x : enemys)
     //{
@@ -95,11 +96,6 @@ void GameState::Restart()
 
     //qlearning
     ++m_QLearn->numTrainedRounds;
-
-    if (!(m_QLearn->numTrainedRounds % 3))
-    {
-        m_QLearn->ql.GetQTable().SaveToFile(m_QLearn->currentPath, m_QLearn->numTrainedRounds);
-    }
 }
 
 void GameState::Update(const float& deltaTime)
@@ -119,13 +115,12 @@ void GameState::Update(const float& deltaTime)
         isFreezed = false;
         gameHasStarted = true;
         audioManager.PlaySound(Sounds::Siren, true, VOLUME_SIREN);
-
     }
 
     //updating entities that are not freezed
     if (isFreezed == false || entityThatWontFreeze == Entities::Pacman)
     {
-        m_QLearn->Update(tileArray, NumberOfTilesX, NumberOfTilesY, pacman);
+        m_QLearn->Update(tileArray, NumberOfTilesX, NumberOfTilesY, pacman, isPacmanDead, score);
         pacman->Update(deltaTime);
     }
 
@@ -142,6 +137,7 @@ void GameState::Update(const float& deltaTime)
     {
         x->Update(deltaTime);
     }
+
 
     //if pacman is dead, wait death music to stop before restarting the game
     if (isPacmanDead && !audioManager.IsPlayingAudio(Sounds::Death))
@@ -176,16 +172,17 @@ void GameState::Draw()
         x->Draw(*window);
 
     pacman->Draw(*window);
+   // DrawCube(*window, pacman->gridPos, this);
 
     //draw walls colliders
-    for (int i = 0; i < NumberOfTilesX; i++)
-    {
-        for (int j = 0 ; j < NumberOfTilesY; j++)
-        {
-            if(tileArray[i][j].DoesTileHaveType(sTile::TileType::Ghost))
-                DrawCube(*window, sf::Vector2i(i, j), this);
-        }
-    }
+    //for (int i = 0; i < NumberOfTilesX; i++)
+    //{
+    //    for (int j = 0 ; j < NumberOfTilesY; j++)
+    //    {
+    //        if(tileArray[i][j].DoesTileHaveType(sTile::TileType::Ghost))
+    //            DrawCube(*window, sf::Vector2i(i, j), this);
+    //    }
+    //}
 
     for (auto const& x : enemys)
     {
@@ -340,8 +337,8 @@ void GameState::DrawTrainingState()
 
 void GameState::UpdateTrainingState(const float& deltaTime)
 {
-    constexpr const size_t numEpisodes{ 1000000 };
-    for (int i{}; i < numEpisodes / 2; i++)
+    constexpr const size_t numEpisodes{ 10000 };
+    for (int i{}; i < numEpisodes; i++)
     {
         if (m_QLearn->numTrainedRounds == numEpisodes)
         {
@@ -360,7 +357,7 @@ void GameState::UpdateTrainingState(const float& deltaTime)
         }
         else
         {
-            m_QLearn->Update(tileArray, NumberOfTilesX, NumberOfTilesY, pacman);
+            m_QLearn->Update(tileArray, NumberOfTilesX, NumberOfTilesY, pacman, isPacmanDead, score);
             pacman->Update(deltaTime * numEpisodes);
 
             for (auto const& x : enemys)

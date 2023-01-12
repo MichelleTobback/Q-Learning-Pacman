@@ -26,7 +26,7 @@ public:
 	Entity() = default;
 	Entity(GameState* gameState, Entities entityType);
 	virtual ~Entity() = default;
-	float speed = 140;
+	float speed = 130;
 	sf::Vector2i gridPos;
 	Directions currentDir = Directions::None;
 	Entities entityType;

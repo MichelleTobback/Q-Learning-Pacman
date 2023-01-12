@@ -23,6 +23,8 @@ Pacman::Pacman(int tileX, int tileY, GameState* gameState)
 
 	body.move(sf::Vector2f(30.f * tileX, 25.5f * tileY));
 
+	//speed = 150;
+
 	m_pController = &gameState->GetController();
 
 	// bind input

@@ -24,9 +24,11 @@ AudioManager::AudioManager()
 
     retreatingBuffer.loadFromFile(AUDIO_RETREATING);
     retreatingSound.setBuffer(retreatingBuffer);
+
+    SetVolume(0.f);
 }
 
-void AudioManager::PlaySound(Sounds soundType, bool loop, int volume)
+void AudioManager::PlaySound(Sounds soundType, bool loop, float volume)
 {
     //new way
     switch (soundType)
@@ -67,7 +69,7 @@ void AudioManager::PlaySound(Sounds soundType, bool loop, int volume)
         retreatingSound.play();
         break;
     }
-
+    SetVolume(0.f);
 }
 
 void AudioManager::StopSound(Sounds soundType)
@@ -105,6 +107,7 @@ void AudioManager::StopSound(Sounds soundType)
         retreatingSound.stop();
         break;
     }
+    SetVolume(0.f);
 }
 
 bool AudioManager::IsPlayingAudio(Sounds soundType)
